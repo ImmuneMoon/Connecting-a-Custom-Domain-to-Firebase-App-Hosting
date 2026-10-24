@@ -8,11 +8,12 @@
 - the code published to GitHub;
 - an App Hosting backend;
 - the domain and a second address connected, with their certificates;
-- a live site, tested end to end.
+- a live site, tested end to end;
+- releases from then on, by pushing to GitHub or from Google Antigravity IDE.
 
-Every step says where to click and what you should see. The snags that cost hours the first time are written in where they happen: the wrong Squarespace page, records Firebase sees late, the redirect warning that isn't one, and the header that decides which address a visitor asked for. They're gathered again in a troubleshooting table.
+Every step says where to click and what you should see. The snags that cost hours the first time are written in where they happen: the wrong Squarespace page, records Firebase sees late, the redirect warning that isn't one, the header that decides which address a visitor asked for, and the push that quietly replaces a release made from your computer. They're gathered again in a troubleshooting table.
 
-The guide was written from a real setup and checked against the official Squarespace, Cloudflare, Firebase and GitHub documentation as of October 2026. A Sources section links to every page it was checked against.
+The guide was written from a real setup and checked against the official Squarespace, Cloudflare, Firebase, Google Antigravity and GitHub documentation as of October 2026. A Sources section links to every page it was checked against.
 
 ## 🗂 Contents of the Guide
 The main document (`custom_domain_firebase_app_hosting_guide.md`) is organized into fourteen sections, after a short **Before You Start** checklist:
@@ -25,7 +26,7 @@ The main document (`custom_domain_firebase_app_hosting_guide.md`) is organized i
 7. **Connect Your Custom Domains** - The A, TXT and certificate CNAME records, exactly how they go into Cloudflare, verifying them, why Firebase can see some late, and the certificate.
 8. **Test the Live Site** - Command-line checks for every address and redirect, and a real sign-in, with what to check if the server disagrees.
 9. **Two Addresses, One Backend: X-Forwarded-Host** - Serving a second domain from the same backend, with a Next.js example, a local test, a spoofing test and a caching note.
-10. **Deploying Changes from Now On** - Push to `main`, watch the rollout.
+10. **Deploying Changes from Now On** - Two ways to release: a push to `main` on GitHub, or a deploy from Google Antigravity IDE, with the Firebase CLI or the agent. Starting a rollout by hand, how the two ways fit together, when to turn automatic rollouts off, and rolling back a bad release.
 11. **GitHub Actions on a Private Repository** - Why a frequent schedule runs out of free minutes, and waking a workflow from another repository with `repository_dispatch` and a narrowly scoped token.
 12. **Signing In the GitHub Command Line** - `gh auth login`, step by step.
 13. **Troubleshooting** - Every snag in one table: what you see, why, and what to do.
@@ -35,6 +36,7 @@ The main document (`custom_domain_firebase_app_hosting_guide.md`) is organized i
 * **Turn DNSSEC off before switching nameservers.** If it's still on at Squarespace when Cloudflare takes over, the domain can stop working for a day or more. Section 2.3 covers it.
 * **Keep every Firebase record "DNS only" (grey cloud).** An orange cloud on Firebase's records can break certificates, and with the Flexible encryption mode it causes a redirect loop.
 * **On App Hosting, your domain arrives in `X-Forwarded-Host`, not `Host`.** Code that reads `Host` works on your own computer and then, live, can't tell your addresses apart. Section 9 covers it.
+* **A push replaces a release made from your computer.** With automatic rollouts on, the next push to `main` rolls out what's on GitHub. After a deploy from Antigravity, commit and push the same change. Section 10.3 covers it.
 * **The Firebase web config is public; service account keys are not.** Committing the config is normal. A service account key in a repository is a full-power credential, and App Hosting doesn't need one.
 * **Private repositories have limited free Actions minutes,** and each run counts as at least a minute. A job every 15 minutes uses more than the free allowance. Section 11 shows the alternative.
 * **The Blaze plan is pay-as-you-go.** Set a budget alert (Section 4.2). It emails you; it doesn't stop spending.
@@ -42,9 +44,10 @@ The main document (`custom_domain_firebase_app_hosting_guide.md`) is organized i
 ## 🚀 How to Use
 Open `custom_domain_firebase_app_hosting_guide.md` in any Markdown viewer, text editor or code editor (such as VS Code, Obsidian or GitHub's built-in preview). Read **Before You Start**, then work through Sections 2 to 8 in order. Most of the time goes on waiting for DNS and certificates, and each wait is a safe place to stop.
 - Section 9 is only for a site with more than one address.
+- Section 10.2 is only if you also want to release from Google Antigravity IDE.
 - Section 11 is only if you use GitHub Actions in a private repository.
 
-For building the app itself (Firebase setup, emulators, security rules), see the companion guide, [Building Firebase Apps in Google Antigravity IDE](https://github.com/ImmuneMoon/Building-Firebase-Apps-in-Google-Antigravity-IDE).
+For building the app itself (Firebase setup, emulators, security rules) and setting up Antigravity for Firebase, see the companion guide, [Building Firebase Apps in Google Antigravity IDE](https://github.com/ImmuneMoon/Building-Firebase-Apps-in-Google-Antigravity-IDE).
 
 ## ☕ Support the Project
 

@@ -41,6 +41,7 @@ You'll need:
 - **A website that builds.** A Next.js app in a folder on your computer that runs `npm run build` without errors, tracked with Git.
 - **Accounts:** [Cloudflare](https://dash.cloudflare.com/sign-up) (the free plan is enough), a Google account for [Firebase](https://console.firebase.google.com), and [GitHub](https://github.com/signup).
 - **[GitHub Desktop](https://desktop.github.com)** installed and signed in.
+- **Optional: [Google Antigravity IDE](https://antigravity.google/download),** if you also want to release from your own computer, not only by pushing to GitHub (Section 10).
 - **A payment card.** Firebase App Hosting needs Firebase's pay-as-you-go plan (Blaze). A small site usually costs little, and Section 4 sets a budget alert.
 - **About two to three hours**, most of it waiting for DNS and certificates. You can stop at any of the waits and come back.
 
@@ -62,7 +63,7 @@ If these words are already familiar, skip to [Section 2](#2-move-your-dns-from-s
 | **Registrar** | Where you rent the domain. Renewals happen here, and it says which nameservers answer for the domain. | Squarespace |
 | **Nameservers / DNS host** | The servers that answer "where is example.com?". You manage your **DNS records** here. | Cloudflare |
 | **Hosting** | The servers that run your site and answer the visitor's browser. | Firebase App Hosting |
-| **Code host** | Where your code lives. App Hosting builds from it. | GitHub |
+| **Code host** | Where your code lives. App Hosting builds from it (or from your own folder; see Section 10). | GitHub |
 
 When someone visits `https://example.com`:
 
@@ -433,7 +434,7 @@ Before you start, make sure your repository has a **lock file** (`package-lock.j
 4. **Deployment settings:**
    - **Root directory:** `/`, unless your app lives in a subfolder of the repository.
    - **Live branch:** `main`.
-   - **Automatic rollouts:** on, as it is by default. Every push to `main` then deploys by itself.
+   - **Automatic rollouts:** on, as it is by default. Every push to `main` then deploys by itself. You can turn this off later, if you'd rather choose when to release (Section 10.3).
 5. **Name your backend:** a short name, for example `my-site`. It becomes part of the backend's own address.
 6. **Runtime environment:** the newest Node.js is chosen for you. Keep it, or pick the version you build with. Automatic base image updates let Google patch the system under your app by itself.
 7. **Web app:** link the web app from 4.5, rather than creating a new one.
@@ -627,6 +628,20 @@ That should still give your main site.
 
 ## 10. Deploying Changes from Now On
 
+You can release a change in two ways. Use either one, or both:
+
+| | **Push to GitHub** (10.1) | **Release from Antigravity** (10.2) |
+|---|---|---|
+| What gets built | the latest commit on `main`, on GitHub | the folder on your computer, as it is now |
+| What starts it | a push, by itself | you, or Antigravity's agent, running `firebase deploy` |
+| What you need | GitHub Desktop | Google Antigravity IDE and the Firebase CLI |
+
+Either way, App Hosting builds your site in the cloud in the same way, and the newest rollout becomes the live site. Section 10.3 shows how the two ways fit together.
+
+**Before each release,** run your build and tests locally. A broken build never replaces the live site: the rollout fails, and the previous one keeps serving.
+
+### 10.1 Push to GitHub
+
 With automatic rollouts on (Section 6), **every push to `main` deploys.**
 
 1. Change your code, and commit in GitHub Desktop.
@@ -635,7 +650,115 @@ With automatic rollouts on (Section 6), **every push to `main` deploys.**
 
 If you work on a separate branch, it reaches the live site only when it's merged into `main` and pushed (5.2, step 2).
 
-**Before each push,** run your build and tests locally. A broken build never replaces the live site: the rollout fails, and the previous one keeps serving.
+### 10.2 Release from Antigravity
+
+[Google Antigravity IDE](https://antigravity.google/download) is Google's code editor with an AI agent built in. From it, you can send the folder on your computer straight to App Hosting with the Firebase CLI, or ask the agent to do it. It goes to the same backend, so your domains (Section 7) keep working.
+
+#### Set up once
+
+1. **Open your project's folder** in Antigravity: the same folder you published in Section 5.
+2. **Open a terminal** in Antigravity: press `` Ctrl+` `` (`` Cmd+` `` on a Mac).
+3. **Install the Firebase CLI**, and check its version. Firebase's steps for Antigravity ask for 15.10.0 or later:
+
+   ```bash
+   npm install -g firebase-tools
+   firebase --version
+   ```
+
+4. **Sign in.** Run `firebase login`, and sign in, in the browser that opens, with the Google account that owns your Firebase project. Then run `firebase projects:list`: your project should be in the list.
+5. **Link the folder to your backend:**
+
+   ```bash
+   firebase init apphosting
+   ```
+
+   Answer its questions:
+   - **Project:** choose **Use an existing project**, and pick yours.
+   - **Create or link:** choose **Link to an existing backend**, and pick the backend from Section 6 (for example `my-site`). Don't create a new one: your domains are on this one.
+   - **Root directory:** `/`, the same as in Section 6.
+   - **"File apphosting.yaml already exists. Overwrite?":** answer **No**, the default. Yes replaces your settings from 4.5 with a blank template.
+
+   This writes two small files: `firebase.json`, which says which backend to deploy to, and `.firebaserc`, which says which project. Neither holds a secret, so commit both.
+
+The companion guide, [Building Firebase Apps in Google Antigravity IDE](https://github.com/ImmuneMoon/Building-Firebase-Apps-in-Google-Antigravity-IDE), covers this setup in more detail in its Sections 1 and 2. That includes install problems on Windows, and giving the agent Firebase's skills and tools.
+
+#### Deploy from the terminal
+
+```bash
+firebase deploy --only apphosting
+```
+
+- **The first time,** the CLI says your backend is linked to a repository on GitHub, and asks **"Are you sure you want to deploy your local source?"** Answer **Yes**. It saves your answer in `firebase.json` (`"alwaysDeployFromSource": true`), so it won't ask again.
+- **Watch it** in the terminal, and in the backend's **Rollouts** tab, where the new rollout appears. A deploy from your folder takes about as long as one from GitHub.
+- **`--only apphosting` sends just the site.** A plain `firebase deploy` also deploys everything else that `firebase.json` lists, such as Firestore rules.
+
+What gets sent:
+- **Your folder as it is on your disk,** including changes you haven't committed or pushed.
+- **Not the files your `.gitignore` lists.** The `.gitignore` from 5.1 keeps `.env` files and keys out of the upload, too.
+- **Your `apphosting.yaml`,** so the build gets the same settings as a rollout from GitHub.
+
+The first deploy from your computer, in a region, sets up a storage bucket for the uploads. That needs a project **Owner**. If you created the project, that's you. After that, Editors can deploy too.
+
+#### Or ask the agent
+
+Antigravity's agent can run the same deploy for you. It knows Firebase's steps best with Firebase's agent skills installed (see the companion guide's Section 2).
+
+1. Open the **Agent** pane. If it's hidden, click the **Toggle Agent** icon at the top of the window.
+2. Ask it to publish, and name your backend, so it doesn't make a new one:
+
+   > *Publish my app to my existing App Hosting backend `my-site`. Don't create a new backend.*
+
+3. The agent asks before it runs `firebase deploy`. Read the command it shows you, then choose **Yes**.
+4. Check the result in the backend's **Rollouts** tab, not only in the chat.
+
+Keep Antigravity set to ask you before it runs commands. A setting that runs every command without asking (**Turbo**, or **Always Proceed**) also lets the agent change your live site without asking.
+
+#### Start a rollout from GitHub by hand
+
+This builds a branch or a commit that's already on GitHub, without a new push. It's useful when automatic rollouts are off, or to rebuild the live site from the same commit.
+
+- **In the Firebase console:** open **Hosting & Serverless**, then **App Hosting**, and press **View** on your backend. Choose **Create rollout**, pick the branch (`main`), then pick the latest commit, or an earlier one by its ID. Press **Create**.
+- **From Antigravity's terminal:**
+
+  ```bash
+  firebase apphosting:rollouts:create my-site --git-branch main
+  ```
+
+  For an earlier commit, use `--git-commit` and the commit's ID instead. With neither, it asks you which branch.
+
+A rollout like this builds what's on GitHub, not what's in your folder. Push first.
+
+### 10.3 How the two ways fit together
+
+**The newest rollout is the live site,** whichever way it started. So:
+
+- **A push replaces a deploy from your folder.** With automatic rollouts on, the next push to `main` rolls out what's on GitHub. Anything you deployed from your folder, but never pushed, disappears from the live site.
+- **After a deploy from your folder, commit and push the same change.** Then GitHub matches the live site, and the next push keeps your change.
+- **A deploy from your folder changes no settings.** Your backend stays linked to GitHub, and automatic rollouts stay as they were.
+
+**Should automatic rollouts stay on?**
+
+- **Yes, if pushing is how you mostly release.** It's the simplest: every push releases, and every live version is a commit on GitHub. Use Antigravity for the odd release you need before you push, then push the same change straight after.
+- **No, if you want to choose when each release happens.** Pushes then only store your code on GitHub. You release with **Create rollout**, from GitHub, or with `firebase deploy --only apphosting`, from your folder.
+
+To change it: open your backend, then **Settings**, then **Deployment**, and turn automatic rollouts off (or back on). The same page changes the live branch.
+
+**Which to use when:**
+
+| You want to | Use |
+|---|---|
+| Release every change, with nothing extra to do | A push to `main`, with automatic rollouts on (10.1) |
+| Release from your computer, before you push or without pushing | `firebase deploy --only apphosting`, or the agent (10.2); then commit and push |
+| Release at a time you choose | Automatic rollouts off, then **Create rollout** when you're ready |
+| Rebuild the live site without a new commit | **Create rollout**, with the latest commit |
+| Undo a bad release | A rollback (10.4) |
+
+### 10.4 Undo a bad release
+
+- **Fastest: roll back.** Open the backend's **Rollouts** tab. Open the three-dot menu on an earlier rollout, choose **Roll back to this build**, and confirm. It reuses that build as it was, without building again.
+- **Or rebuild an older commit.** Choose **Create rollout**, then **Earlier commit**, and enter the commit's ID. This builds the old code again, with today's settings and secrets.
+
+Then fix or revert the code on GitHub too. With automatic rollouts on, the next push to `main` rolls out again, on top of your rollback.
 
 ---
 
@@ -771,6 +894,14 @@ gh api repos/OWNER/SITE-REPO/actions/permissions/workflow
 | GitHub Desktop says **no local changes** to publish | Publishing sends commits, not files | Press **Publish repository** (or **Push origin**); check the **History** tab |
 | A **new, empty** repository was published | It was created in a new folder instead of adding your project's | Publish your project's own folder (5.2); the empty one can be removed |
 | The rollout **fails** | The build broke | Open the rollout's build log; reproduce with `npm ci` and `npm run build` locally (Section 6) |
+| `firebase` isn't found in Antigravity's terminal | The terminal was open before you installed the CLI. On macOS or Linux, your shell setup may be in `~/.bashrc`, which Antigravity's terminal doesn't load | Open a new terminal, or restart Antigravity. On macOS or Linux, load `~/.bashrc` from `~/.bash_profile`; Firebase's Studio migration page shows the lines |
+| `firebase init apphosting` asks to **overwrite `apphosting.yaml`** | It offers a blank template in place of your file | Answer **No**. If you said Yes, get your file back: in GitHub Desktop's **Changes** tab, select it and choose **Discard changes** |
+| `firebase deploy` says **Skipping deployment of backend(s)** | You once answered No to deploying your local source, and `firebase.json` saved `"alwaysDeployFromSource": false` | Change it to `true`, or delete that line to be asked again (10.2) |
+| `firebase deploy` also changed your **Firestore rules** | A plain `firebase deploy` deploys everything `firebase.json` lists | Use `firebase deploy --only apphosting` (10.2) |
+| The first deploy from your computer fails with **permission denied** (403) | The first deploy from source in a region sets up a storage bucket, which needs a project Owner | Run it once while signed in (`firebase login`) as an Owner. After that, Editors can deploy too |
+| The agent created a **second backend** | It didn't find yours | Name your backend in the prompt (10.2). Run `firebase apphosting:backends:list`, and delete only the new one, with `firebase apphosting:backends:delete`. Your domains stay on the old one |
+| A change you deployed from Antigravity is **gone** from the live site | A push to `main` rolled out what's on GitHub, which doesn't have the change | Commit and push the change too (10.3) |
+| `apphosting:rollouts:create` doesn't take `--git_branch` | Firebase's CLI reference table spells it with an underscore; the command's option is `--git-branch` | Use `--git-branch` (or `--git-commit`), with hyphens (10.2) |
 | Google sign-in: **domain not authorized** | Your domain isn't in Authentication's authorized domains | Add `example.com` (4.3) |
 | Sign-in fails only on your own computer | Since April 2025, new projects don't authorize `localhost` by default | Add `localhost` to the authorized domains (4.3) |
 | Google sign-in or a sign-in link fails with a vague error, or `auth/operation-not-allowed` | That sign-in method isn't turned on, or Authentication's **Get started** was never pressed | Turn on the provider in **Sign-in method**; for links, **Email/Password** and **Email link** both (4.3) |
@@ -824,12 +955,27 @@ Checked against these pages in October 2026. Menus move from time to time; if on
 - [About App Hosting (the GitHub connection)](https://firebase.google.com/docs/app-hosting/about-app-hosting)
 - [Connect a custom domain to App Hosting](https://firebase.google.com/docs/app-hosting/custom-domain)
 - [App Hosting troubleshooting](https://firebase.google.com/docs/app-hosting/troubleshooting)
+- [Manage rollouts and releases (automatic rollouts, Create rollout, rollbacks)](https://firebase.google.com/docs/app-hosting/rollouts)
+- [Alternative ways to deploy to App Hosting (deploying from your folder)](https://firebase.google.com/docs/app-hosting/alt-deploy)
+- [Firebase CLI reference (install, `firebase login`, `firebase.json`, App Hosting commands)](https://firebase.google.com/docs/cli)
+- [Firebase agent skills](https://firebase.google.com/docs/ai-assistance/agent-skills)
+- [Firebase Studio sunset and project migration (publishing from Antigravity, the Antigravity terminal)](https://firebase.google.com/docs/studio/migrating-project)
+- Firebase CLI source, for its exact prompts: [`firebase init apphosting`](https://github.com/firebase/firebase-tools/blob/master/src/init/features/apphosting.ts), [deploying your local source (`alwaysDeployFromSource`)](https://github.com/firebase/firebase-tools/blob/master/src/deploy/apphosting/prepare.ts), [`apphosting:rollouts:create`](https://github.com/firebase/firebase-tools/blob/master/src/commands/apphosting-rollouts-create.ts)
 - [App Hosting updates, July 2024 (wildcard domains and `X-Forwarded-Host`)](https://firebase.blog/posts/2024/07/app-hosting-updates)
 - [Google Cloud Certificate Manager: DNS authorizations (the `_acme-challenge` record)](https://docs.cloud.google.com/certificate-manager/docs/dns-authorizations)
+
+**Google Antigravity**
+- [Download (Antigravity IDE)](https://antigravity.google/download)
+- [Firebase Studio migration (publishing with the agent)](https://antigravity.google/docs/firebase-studio-migration)
+- [Agent side panel](https://antigravity.google/docs/ide/agent-side-panel)
+- [Agent skills](https://antigravity.google/docs/skills)
+- [Agent settings (when the agent asks before running commands)](https://antigravity.google/docs/agent-settings)
+- [Terminal sandbox](https://antigravity.google/docs/sandbox)
 
 **GitHub**
 - [Add a repository from your computer to GitHub Desktop](https://docs.github.com/en/desktop/adding-and-cloning-repositories/adding-a-repository-from-your-local-computer-to-github-desktop)
 - [Add an existing project to GitHub using GitHub Desktop](https://docs.github.com/en/desktop/adding-and-cloning-repositories/adding-an-existing-project-to-github-using-github-desktop)
+- [Committing and reviewing changes in GitHub Desktop (discarding changes)](https://docs.github.com/en/desktop/making-changes-in-a-branch/committing-and-reviewing-changes-to-your-project-in-github-desktop)
 - [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions)
 - [Actions runner pricing (rounding to whole minutes)](https://docs.github.com/en/billing/reference/actions-runner-pricing)
 - [Managing personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)

@@ -6,6 +6,8 @@
 ![Checked against official docs, October 2026](https://img.shields.io/badge/Checked-Oct%202026-2ea44f)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey)](LICENSE)
 
+**📄 [Download the PDF](Connecting-a-Custom-Domain-to-Firebase-App-Hosting.pdf)**
+
 ## 📖 Overview
 **Connecting a Custom Domain to Firebase App Hosting** is a step-by-step guide to publishing a website on Firebase App Hosting under your own domain, written for someone doing it for the first time. It follows the whole process in order:
 - a domain registered at Squarespace;

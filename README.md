@@ -3,7 +3,6 @@
 ![Firebase App Hosting](https://img.shields.io/badge/Firebase-App%20Hosting-FFCA28?logo=firebase&logoColor=white)
 ![Cloudflare DNS](https://img.shields.io/badge/DNS-Cloudflare-F38020?logo=cloudflare&logoColor=white)
 ![Squarespace registrar](https://img.shields.io/badge/Registrar-Squarespace-000000?logo=squarespace&logoColor=white)
-![Checked against official docs, October 2026](https://img.shields.io/badge/Checked-Oct%202026-2ea44f)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey)](LICENSE)
 
 **📄 [Download the PDF](Connecting-a-Custom-Domain-to-Firebase-App-Hosting.pdf)**

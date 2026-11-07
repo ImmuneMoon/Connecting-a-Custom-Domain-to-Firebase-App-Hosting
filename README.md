@@ -42,6 +42,8 @@ For building the app itself (Firebase setup, emulators, security rules) and sett
 
 For letting your site store users' files, see [Private Cloud Storage for a Next.js Site on Firebase App Hosting](https://github.com/ImmuneMoon/Private-Cloud-Storage-for-Firebase-App-Hosting). It uses the same Blaze plan, `apphosting.yaml` and deploys as this guide.
 
+Putting a portfolio online? [Web Developer Careers, Portfolio and Freelancing](https://github.com/ImmuneMoon/Web-Developer-Careers-Portfolio-and-Freelancing#32-putting-it-online) covers what a portfolio site should show and where to host it.
+
 ---
 
 <!-- guide:start -->

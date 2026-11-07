@@ -40,6 +40,8 @@ Download the PDF above, or read on below. Read **Before You Start**, then work t
 
 For building the app itself (Firebase setup, emulators, security rules) and setting up Antigravity for Firebase, see the companion guide, [Building Firebase Apps in Google Antigravity IDE](https://github.com/ImmuneMoon/Building-Firebase-Apps-in-Google-Antigravity-IDE).
 
+For letting your site store users' files, see [Private Cloud Storage for a Next.js Site on Firebase App Hosting](https://github.com/ImmuneMoon/Private-Cloud-Storage-for-Firebase-App-Hosting). It uses the same Blaze plan, `apphosting.yaml` and deploys as this guide.
+
 ---
 
 <!-- guide:start -->
@@ -49,6 +51,8 @@ A step-by-step guide to publishing a website on **Firebase App Hosting** under y
 It is written for someone who has never done this before. Every step says where to click, what you should see, and what to do when you don't see it. The snags that cost hours the first time are written in where they happen, and gathered again in [Troubleshooting](#13-troubleshooting).
 
 > **Building the app itself?** This guide starts from a working app. For setting up a Firebase app, the emulators, security rules and the App Hosting basics, see the companion guide, [Building Firebase Apps in Google Antigravity IDE](https://github.com/ImmuneMoon/Building-Firebase-Apps-in-Google-Antigravity-IDE).
+
+> **Storing users' files?** Once your site is live, [Private Cloud Storage for a Next.js Site on Firebase App Hosting](https://github.com/ImmuneMoon/Private-Cloud-Storage-for-Firebase-App-Hosting) adds a private bucket with signed upload and download links.
 
 Throughout, replace:
 

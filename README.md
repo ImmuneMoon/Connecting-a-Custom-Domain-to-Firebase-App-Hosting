@@ -20,7 +20,7 @@
 
 Every step says where to click and what you should see. The snags that cost hours the first time are written in where they happen: the wrong Squarespace page, records Firebase sees late, the redirect warning that isn't one, the header that decides which address a visitor asked for, and the push that quietly replaces a release made from your computer. They're gathered again in a troubleshooting table.
 
-The guide was written from a real setup and checked against the official Squarespace, Cloudflare, Firebase, Google Antigravity and GitHub documentation as of October 2026. A Sources section links to every page it was checked against.
+A Sources section links to the official Squarespace, Cloudflare, Firebase, Google Antigravity and GitHub documentation behind each step.
 
 ## ⚠️ Important Notes
 * **Turn DNSSEC off before switching nameservers.** If it's still on at Squarespace when Cloudflare takes over, the domain can stop working for a day or more. Section 2.3 covers it.
@@ -965,7 +965,7 @@ gh api repos/OWNER/SITE-REPO/actions/permissions/workflow
 
 ## 14. Sources
 
-Checked against these pages in October 2026. Menus move from time to time; if one looks different, the page will show its current name.
+Menus move from time to time; if one looks different, the page will show its current name.
 
 **Squarespace**
 - [Review, change, or reset your domain's nameservers](https://support.squarespace.com/hc/en-us/articles/4404183898125-Review-change-or-reset-your-domain-s-nameservers)
